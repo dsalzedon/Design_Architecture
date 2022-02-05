@@ -1,97 +1,53 @@
-from abc import ABCMeta, abstractmethod
 import copy
 
 
-# class - Courses at GeeksforGeeks
-class Courses_At_GFG(metaclass=ABCMeta):
+class Address:
+    def __init__(self, street_address, city, suite) -> None:
+        self.city = city
+        self.street_address = street_address
+        self.suite = suite
 
-    # constructor
-    def __init__(self):
-        self.id = None
-        self.type = None
-
-    @abstractmethod
-    def course(self):
-        pass
-
-    def get_type(self):
-        return self.type
-
-    def get_id(self):
-        return self.id
-
-    def set_id(self, sid):
-        self.id = sid
-
-    def clone(self):
-        return copy.copy(self)
+    def __str__(self) -> str:
+        return f"{self.street_address}, {self.city}, {self.suite}"
 
 
-# class - DSA course
-class DSA(Courses_At_GFG):
-    def __init__(self):
-        super().__init__()
-        self.type = "Data Structures and Algorithms"
+class Employee:
+    def __init__(self, name, address) -> None:
+        self.name = name
+        self.address = address
 
-    def course(self):
-        print("Inside DSA::course() method")
-
-
-# class - SDE Course
-class SDE(Courses_At_GFG):
-    def __init__(self):
-        super().__init__()
-        self.type = "Software Development Engineer"
-
-    def course(self):
-        print("Inside SDE::course() method.")
+    def __str__(self) -> str:
+        return f"{self.name} works at {self.address}"
 
 
-# class - STL Course
-class STL(Courses_At_GFG):
-    def __init__(self):
-        super().__init__()
-        self.type = "Standard Template Library"
-
-    def course(self):
-        print("Inside STL::course() method.")
-
-
-# class - Courses At GeeksforGeeks Cache
-class Courses_At_GFG_Cache:
-
-    # cache to store useful information
-    cache = {}
+class EmployeeFactory:
+    main_office_employee = Employee("", Address("London Road 123", "London", 0))
+    aux_office_employee = Employee("", Address("London Road 124B", "London", 0))
 
     @staticmethod
-    def get_course(sid):
-        COURSE = Courses_At_GFG_Cache.cache.get(sid, None)
-        return COURSE.clone()
+    def __new_employee(proto, name, suite):
+        result = copy.deepcopy(proto)
+        result.name = name
+        result.address.suite = suite
+        return result
 
     @staticmethod
-    def load():
-        sde = SDE()
-        sde.set_id("1")
-        Courses_At_GFG_Cache.cache[sde.get_id()] = sde
+    def new_main_office_employee(name, suite):
+        return EmployeeFactory.__new_employee(
+            EmployeeFactory.main_office_employee, name, suite
+        )
 
-        dsa = DSA()
-        dsa.set_id("2")
-        Courses_At_GFG_Cache.cache[dsa.get_id()] = dsa
-
-        stl = STL()
-        stl.set_id("3")
-        Courses_At_GFG_Cache.cache[stl.get_id()] = stl
+    @staticmethod
+    def new_aux_office_employee(name, suite):
+        return EmployeeFactory.__new_employee(
+            EmployeeFactory.aux_office_employee, name, suite
+        )
 
 
-# main function
-if __name__ == "__main__":
-    Courses_At_GFG_Cache.load()
+john = EmployeeFactory.new_main_office_employee("John", 50)
+dan = EmployeeFactory.new_main_office_employee("Dan", 101)
+ivan = EmployeeFactory.new_aux_office_employee("Ivan", 33)
 
-    sde = Courses_At_GFG_Cache.get_course("1")
-    print(sde.get_type())
-
-    dsa = Courses_At_GFG_Cache.get_course("2")
-    print(dsa.get_type())
-
-    stl = Courses_At_GFG_Cache.get_course("3")
-    print(stl.get_type())
+print(ivan)
+print(john)
+print(dan)
